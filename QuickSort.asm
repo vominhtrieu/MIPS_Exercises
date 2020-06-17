@@ -70,18 +70,22 @@ readFile:
 charToInt:
 	li $v0, 0
 
-	.loopConvert:
+	loopConvert:
 		lb $t0, 0($a0)
-		bgt $t0, '9', .out # *str > '9'
-		blt $t0, '0', .out # *str < '0'
+		#Check whether this character is a number
+		bgt $t0, '9', endLoopConvert
+		blt $t0, '0', endLoopConvert
+		
+		#num *= 10 by using num = num + 8 + 2 or num = (num << 3) + (num << 1)
 		sll $t2, $v0, 1
 		sll $v0, $v0, 3
-		add $v0, $v0, $t2 # num *= 10, using: num = (num << 3) + (num << 1)
-		addi $t0, $t0, -48
+		add $v0, $v0, $t2
+		
+		subi $t0, $t0, '0'
 		add $v0, $v0, $t0
-		addi $a0, $a0, 1 # ++num
-		j .loopConvert
-	.out:
+		addi $a0, $a0, 1
+		j loopConvert
+	endLoopConvert:
     		jr $ra # return
     
 #String to array
@@ -102,7 +106,7 @@ toArray:
 	addi $a0, $a0, 1
 
 	loopInput:
-		beq $s1, 0, endLoop
+		beq $s1, 0, endLoopInput
 		jal charToInt
 		addi $a0, $a0, 1
 		addi $s1, $s1, -1
@@ -110,7 +114,7 @@ toArray:
 		addi $s3, $s3, 4
 		j loopInput
 
-	endLoop:
+	endLoopInput:
 		addi $ra, $s2, 0
 		jr $ra
 
