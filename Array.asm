@@ -16,6 +16,7 @@
   option4Msg: .asciiz "Phan tu lon nhat trong mang: "
   option5Msg: .asciiz "Phan tu can tim la phan tu thu "
   option5InputMsg: .asciiz "Nhap gia tri x can tim: "
+  option5MissingMsg: .asciiz "Khong co gia tri ban can tim trong mang!"
   option6Msg: .asciiz "Ban se thoat khoi chuong trinh."
   invalidOption: .asciiz "Lua chon khong hop le! Vui long chon lai.\n"
   arrBaseAddr: .word 0
@@ -153,12 +154,17 @@
     jal findValue
     add $s0, $0, $v0
 
+    beq $v0, -1, xNotFound
     la $a0, option5Msg
     li $v0, 4
     syscall
     add $a0, $0, $s0
     li $v0, 1
     syscall
+    xNotFound:
+      la $a0, option5MissingMsg
+      li $v0, 4
+      syscall
 
     la $a0, endln
     li $v0, 4
@@ -272,15 +278,15 @@
 
   findValue:  #function for option 5, x in $a0
     li $v0, 0
-    XLoop:
+    FindingLoop:
       sll $t1, $v0, 2
       addu $t2, $t1, $a1
       lw $t3, ($t2)
-      beq $t3, $a0, FoundX
+      beq $t3, $a0, finishFind
       addi $v0, $v0, 1
-      bne $v0, $a2, XLoop
+      bne $v0, $a2, FindingLoop
     addi $v0, $0, -1
-    FoundX:
+    finishFind:
     jr $ra
 
 
