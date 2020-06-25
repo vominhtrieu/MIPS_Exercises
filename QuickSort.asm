@@ -1,14 +1,10 @@
 .data
 arrSize: .word 0
-arr: .space 4000		#4000bytes can contains 1000 word elements
+arr: .space 4000		#4000 bytes can contains 1000 word elements
 
 inputFile: .asciiz "input_sort.txt"
 outputFile: .asciiz "output_sort.txt"
-inputBuffer: .space 20000 	#Array have 1000 elements in maximum
-				#A decimal have 11 characters in maximum
-				#And we need 999 spaces in maximum
-				#So we need 1000*11 + 999 = 11999(Bytes)
-				#And 20000 is enough for storing them
+inputBuffer: .space 20000
 outputBuffer: .space 20000
 .text
 .globl main
@@ -69,7 +65,6 @@ readFile:
 #Convert a char to int
 charToInt:
 	li $v0, 0
-
 	loopConvert:
 		lb $t0, 0($a0)
 		#Check whether this character is a number
@@ -77,9 +72,9 @@ charToInt:
 		blt $t0, '0', endLoopConvert
 		
 		#num *= 10 by using num = num + 8 + 2 or num = (num << 3) + (num << 1)
-		sll $t2, $v0, 1
+		sll $t1, $v0, 1
 		sll $v0, $v0, 3
-		add $v0, $v0, $t2
+		add $v0, $v0, $t1
 		
 		subi $t0, $t0, '0'
 		add $v0, $v0, $t0
@@ -134,32 +129,32 @@ partition:
 
 	loopLeftPointer:
 		addi $t0, $t0, 4
-		lw $t4, 0($t0)
-		bge $t4, $a2, loopRightPointer
+		lw $t3, 0($t0)
+		bge $t3, $a2, loopRightPointer
 		j loopLeftPointer
 
 	loopRightPointer:
-		ble $t1, $t2, endSortLoop #Compare $s1(Right pointer) and $t2(Address of first element)
+		ble $t1, $t2, endSortLoop #Compare $t1(Right pointer) and $t2(Address of first element)
 		subi $t1, $t1, 4
-		lw $t4, 0($t1)
-		ble $t4, $a2, endSortLoop
+		lw $t3, 0($t1)
+		ble $t3, $a2, endSortLoop
 		j loopRightPointer
-		endSortLoop:
+	endSortLoop:
 		bge $t0, $t1, outLoop
 
 		#Swap
-		lw $t2, 0($t0)
-		lw $t3, 0($t1)
-		sw $t2, 0($t1)
-		sw $t3, 0($t0)
+		lw $t4, 0($t0)
+		lw $t5, 0($t1)
+		sw $t4, 0($t1)
+		sw $t5, 0($t0)
 
 		j loopLeftPointer
 
 	outLoop:
-		lw $t2, 0($t0)
-		lw $t3, 0($a1)
-		sw $t2, 0($a1)
-		sw $t3, 0($t0)
+		lw $t4, 0($t0)
+		lw $t5, 0($a1)
+		sw $t4, 0($a1)
+		sw $t5, 0($t0)
 		addi $v0, $t0, 0
 		jr $ra
 
@@ -247,7 +242,7 @@ writeFile:
 		j loopWriteToBuffer
 
 	endLoopWrite:
-		subi $t0, $a1, 1
+		addi $t0, $a1, 0
 
 		#Open file
 		li $v0, 13
