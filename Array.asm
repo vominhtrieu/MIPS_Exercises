@@ -154,18 +154,19 @@
     jal findValue
     add $s0, $0, $v0
 
-    beq $v0, -1, xNotFound
+    beq $v0, -1, NotFound
     la $a0, option5Msg
     li $v0, 4
     syscall
     add $a0, $0, $s0
     li $v0, 1
     syscall
-    xNotFound:
+    j doneOption5
+    NotFound:
       la $a0, option5MissingMsg
       li $v0, 4
       syscall
-
+    doneOption5:
     la $a0, endln
     li $v0, 4
     syscall
